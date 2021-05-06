@@ -38,12 +38,17 @@ $(document).ready(function () {
 
         const temp = result["data"][0];
         if (result.status.name == "ok") {
+          const formatPopulation = Number(temp["population"]).toLocaleString(
+            "en-US"
+          );
+          const formatArea = Number(temp["areaInSqKm"]).toLocaleString("en-US");
+
           $("#textCountry").html(temp["countryName"]);
           $("#textCapital").html(temp["capital"]);
           $("#textContinent").html(temp["continent"]);
-          $("#textPopulation").html(temp["population"]);
+          $("#textPopulation").html(formatPopulation);
           $("#textLanguages").html(temp["languages"]);
-          $("#textArea").html(temp["areaInSqKm"]);
+          $("#textArea").html(formatArea);
 
           currencyCode = temp["currencyCode"];
           countryCapital = temp["capital"];
@@ -61,122 +66,6 @@ $(document).ready(function () {
   };
 
   //////////////////RETRIEVE LOCAL WEATHER WITH OPENWEATHER////////////////////////
-
-  // const retrieveLocalWeather = function (latitude, longitude) {
-  //   $.ajax({
-  //     url: "libs/php/getLocalWeather.php",
-  //     type: "POST",
-  //     dataType: "json",
-  //     data: {
-  //       lat: latitude,
-  //       lng: longitude,
-  //     },
-  //     success: function (result) {
-  //       // console.log(JSON.stringify(result));
-  //       const temp = result["data"];
-  //       if (result.status.name == "ok") {
-  //         $("#localization").html("Localization");
-  //         $("#weatherLocation").html(temp["name"]);
-  //         $("#weatherCountry").html(", " + temp["sys"]["country"]);
-  //         $("#weatherLat").html("Lat: " + temp["coord"]["lat"]);
-  //         $("#weatherLng").html("Lon: " + temp["coord"]["lon"]);
-  //         $("#weatherFeels").html(
-  //           "temperature:<br><span class='weather-emoji'>🌡</span><br>" +
-  //             (temp["main"]["feels_like"] - 273.15).toFixed(2) +
-  //             "°C"
-  //         );
-  //         $("#weatherHumidity").html(
-  //           "humidity:<br><span class='weather-emoji'>💧</span><br>" +
-  //             temp["main"]["humidity"] +
-  //             "%"
-  //         );
-  //         $("#weatherWind").html(
-  //           "wind:<br><span class='weather-emoji'>💨</span><br>" +
-  //             temp["wind"]["speed"] +
-  //             "Km/h"
-  //         );
-  //         $("#weatherVisibility").html(
-  //           "visibility:<br><span class='weather-emoji'>🏞</span><br>" +
-  //             temp["visibility"] / 1000 +
-  //             "Km"
-  //         );
-
-  //         const capitalizedWeather =
-  //           temp["weather"]["0"]["description"][0].toUpperCase() +
-  //           temp["weather"]["0"]["description"].substring(1);
-
-  //         $("#weatherWeather").html(capitalizedWeather);
-
-  //         const iconCode = temp["weather"]["0"]["icon"];
-  //         let iconEmoji = "";
-
-  //         switch (iconCode) {
-  //           case "01d":
-  //             iconEmoji = "☀️";
-  //             break;
-  //           case "01n":
-  //             iconEmoji = "🌙";
-  //             break;
-  //           case "02d":
-  //             iconEmoji = "⛅️";
-  //             break;
-  //           case "02n":
-  //             iconEmoji = "☁️";
-  //             break;
-  //           case "03d":
-  //             iconEmoji = "☁️";
-  //             break;
-  //           case "03n":
-  //             iconEmoji = "☁️";
-  //             break;
-  //           case "04d":
-  //             iconEmoji = "☁️";
-  //             break;
-  //           case "04n":
-  //             iconEmoji = "☁️";
-  //             break;
-  //           case "09d":
-  //             iconEmoji = "🌦";
-  //             break;
-  //           case "09n":
-  //             iconEmoji = "🌦";
-  //             break;
-  //           case "10d":
-  //             iconEmoji = "🌧";
-  //             break;
-  //           case "10n":
-  //             iconEmoji = "🌧";
-  //             break;
-  //           case "11d":
-  //             iconEmoji = "🌩";
-  //             break;
-  //           case "11n":
-  //             iconEmoji = "🌩";
-  //             break;
-  //           case "13d":
-  //             iconEmoji = "❄️";
-  //             break;
-  //           case "13n":
-  //             iconEmoji = "❄️";
-  //             break;
-  //           case "50d":
-  //             iconEmoji = "☁️";
-  //             break;
-  //           case "50n":
-  //             iconEmoji = "☁️";
-  //             break;
-  //           default:
-  //             iconEmoji = "";
-  //         }
-
-  //         $("#weatherIcon").html(iconEmoji);
-  //       }
-  //     },
-  //     error: function (result, a, e) {
-  //       alert("Error! Couldn't get weather from Openweather");
-  //     },
-  //   });
-  // };
 
   const retrieveWeatherCapitalCity = function (countryCode, capitalCity) {
     $.ajax({
@@ -298,13 +187,28 @@ $(document).ready(function () {
 
   ////////////////////////RETRIEVE DATES///////////
 
+  const getPostfixToDate = (num) => {
+    if (num[0] === "0") {
+      num = num.replace("0", "");
+    }
+    if (num == "1" || num == "21" || num == "31") {
+      return num + "st";
+    } else if (num == "2" || num == "22") {
+      return num + "nd";
+    } else if (num == "3" || num == "23") {
+      return num + "rd";
+    } else {
+      return num + "th";
+    }
+  };
+
   //used in exchange rate
   const getTheDate = (timezone) => {
     let d = new Date();
 
     const day = d.toDateString().split(" ")[0];
     const month = d.toDateString().split(" ")[1];
-    const dayNum = d.toDateString().split(" ")[2];
+    const dayNum = getPostfixToDate(d.toDateString().split(" ")[2]);
     const year = d.toDateString().split(" ")[3];
     const time =
       d.toTimeString().split(" ")[0].split(":")[0] +
@@ -312,7 +216,7 @@ $(document).ready(function () {
       d.toTimeString().split(" ")[0].split(":")[1];
 
     $("#dateEx").html(
-      day + ", " + dayNum + " " + month + " " + year + " - " + time
+      day + ", " + month + " " + dayNum + ", " + year + " - " + time
     );
   };
 
@@ -325,13 +229,30 @@ $(document).ready(function () {
         capital: capital,
       },
       success: function (result) {
+        // console.log(result);
         // console.log(JSON.stringify(result["data"]["date_time_txt"]));
-        const reformatTime =
-          result["data"]["date_time_txt"].split(":")[0] +
+        const reformatDate =
+          result["data"]["date_time_txt"].split(",")[0] +
+          ", " +
+          result["data"]["date_time_txt"].split(",")[1].split(" ")[1] +
+          " " +
+          getPostfixToDate(
+            result["data"]["date_time_txt"].split(",")[1].split(" ")[2]
+          ) +
+          ", " +
+          result["data"]["date_time_txt"]
+            .split(",")[2]
+            .split(":")[0]
+            .split(" ")[1] +
+          " - " +
+          result["data"]["date_time_txt"]
+            .split(",")[2]
+            .split(":")[0]
+            .split(" ")[2] +
           ":" +
-          result["data"]["date_time_txt"].split(":")[1];
+          result["data"]["date_time_txt"].split(",")[2].split(":")[1];
 
-        $("#date").html(reformatTime);
+        $("#date").html(reformatDate);
       },
       error: function (result, a, e) {
         alert("Error! Couldn't retrieve Time");
@@ -428,8 +349,10 @@ $(document).ready(function () {
       success: function (result) {
         // console.log(result["data"]["rates"][currencyCode]);
         const exchangerate = result["data"]["rates"][currencyCode].toFixed(2);
+        const formatExchangeRate = Number(exchangerate).toLocaleString("en-US");
+
         if (result.status.name == "ok") {
-          $("#textExchRate").html(exchangerate);
+          $("#textExchRate").html(formatExchangeRate);
         }
       },
       error: function (result, a, e) {
@@ -463,14 +386,73 @@ $(document).ready(function () {
         // console.log(JSON.stringify(result["data"][0]));
         if (result.status.name == "ok") {
           const subData = result["data"][0];
+
+          const formatConfirmed = Number(subData["confirmed"]).toLocaleString(
+            "en-US"
+          );
+          const formatRecovered = Number(subData["recovered"]).toLocaleString(
+            "en-US"
+          );
+          const formatCritical = Number(subData["critical"]).toLocaleString(
+            "en-US"
+          );
+          const formatDeaths = Number(subData["deaths"]).toLocaleString(
+            "en-US"
+          );
+
+          $("#textConfirmed").html(formatConfirmed);
+          $("#textRecovered").html(formatRecovered);
+          $("#textCritical").html(formatCritical);
+          $("#textDeaths").html(formatDeaths);
+
           const lupdate = subData["lastUpdate"].split("T")[0];
 
-          $("#textConfirmed").html(subData["confirmed"]);
-          $("#textRecovered").html(subData["recovered"]);
-          $("#textCritical").html(subData["critical"]);
-          $("#textDeaths").html(subData["deaths"]);
-
-          $("#textDate").html(lupdate);
+          let month = lupdate.split("-")[1];
+          switch (month) {
+            case "01":
+              month = "January";
+              break;
+            case "02":
+              month = "February";
+              break;
+            case "03":
+              month = "March";
+              break;
+            case "04":
+              month = "April";
+              break;
+            case "05":
+              month = "May";
+              break;
+            case "06":
+              month = "June";
+              break;
+            case "07":
+              month = "July";
+              break;
+            case "08":
+              month = "August";
+              break;
+            case "09":
+              month = "September";
+              break;
+            case "10":
+              month = "October";
+              break;
+            case "11":
+              month = "November";
+              break;
+            case "12":
+              month = "December";
+              break;
+          }
+          const reFormatDate =
+            month +
+            " " +
+            getPostfixToDate(lupdate.split("-")[2]) +
+            ", " +
+            lupdate.split("-")[0];
+          $("#textDate").html(reFormatDate);
         }
       },
       error: function (result, a, e) {
